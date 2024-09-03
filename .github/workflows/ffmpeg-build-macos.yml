@@ -27,14 +27,15 @@ jobs:
       - name: Clone FFmpeg
         run: git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
 
-      - name: Build FFmpeg on Linux and macOS
+      - name: Build FFmpeg on MacOS
         run: |
           cd ffmpeg
-          ./configure
+          ./configure --enable-shared --enable-static --prefix=out
           make -j1
+          make install
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ffmpeg-${{ matrix.os }}
-          path: ffmpeg/ffmpeg
+          name: ffmpeg-macos
+          path: ffmpeg/out

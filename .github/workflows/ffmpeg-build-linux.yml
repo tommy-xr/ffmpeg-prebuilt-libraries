@@ -32,11 +32,12 @@ jobs:
       - name: Build FFmpeg
         run: |
           cd ffmpeg
-          ./configure
+          ./configure --enable-shared --enable-static --prefix=out
           make -j1
+          make install
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ffmpeg-${{ matrix.os }}
-          path: ffmpeg/ffmpeg
+          name: ffmpeg-linux-x64
+          path: ffmpeg/out

@@ -30,14 +30,14 @@ jobs:
         run: git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
 
       - name: Cross-compile FFmpeg for Windows (x86_64) using MinGW
-        if: matrix.arch == 'x86_64'
         run: |
           cd ffmpeg
-          ./configure --target-os=mingw32 --arch=x86_64 --cross-prefix=x86_64-w64-mingw32-
-          make -j$(nproc)
+          ./configure --target-os=mingw32 --arch=x86_64 --cross-prefix=x86_64-w64-mingw32- --enable-shared --enable-static --prefix=out
+          make -j1
+          make install
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ffmpeg-${{ matrix.os }}
-          path: ffmpeg/ffmpeg
+          name: ffmpeg-windows-x64
+          path: ffmpeg/out
