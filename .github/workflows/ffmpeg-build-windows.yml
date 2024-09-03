@@ -24,7 +24,10 @@ jobs:
             autoconf automake build-essential cmake git-core libass-dev \
             libfreetype6-dev libsdl2-dev libtool libva-dev libvdpau-dev \
             libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
-            meson ninja-build pkg-config texinfo wget yasm zlib1g-dev
+            meson ninja-build pkg-config texinfo wget yasm zlib1g-dev mingw-w64
+
+      - name: Check MingW cross-compiler
+        run: x86_64-w64-mingw32-gcc --version
 
       - name: Clone FFmpeg
         run: git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
