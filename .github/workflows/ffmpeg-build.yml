@@ -46,6 +46,11 @@ jobs:
       - name: Clone FFmpeg
         run: git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
 
+      - name: Build 5.0
+        run: |
+          cd ffmpeg
+          git checkout n5.0
+
       - name: Build FFmpeg on Linux and macOS
         if: matrix.os != 'windows-latest'
         run: |
