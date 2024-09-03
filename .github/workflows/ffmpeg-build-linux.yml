@@ -10,18 +10,14 @@ on:
 
 jobs:
   build:
-    name: Build FFmpeg for ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+    name: Build FFmpeg for Linux
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
 
       - name: Set up dependencies on Ubuntu
-        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -30,34 +26,13 @@ jobs:
             libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
             meson ninja-build pkg-config texinfo wget yasm zlib1g-dev
 
-      - name: Set up dependencies on macOS
-        if: matrix.os == 'macos-latest'
-        run: |
-          brew update
-          brew install \
-            autoconf automake cmake fdk-aac git lame libass libtool \
-            libvorbis libvpx opus sdl2 texinfo wget x264 x265 xvid yasm
-
-      - name: Set up dependencies on Windows
-        if: matrix.os == 'windows-latest'
-        run: |
-          choco install make nasm
-
       - name: Clone FFmpeg
         run: git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
 
-      - name: Build FFmpeg on Linux and macOS
-        if: matrix.os != 'windows-latest'
+      - name: Build FFmpeg
         run: |
           cd ffmpeg
           ./configure
-          make -j1
-
-      - name: Build FFmpeg on Windows
-        if: matrix.os == 'windows-latest'
-        run: |
-          cd ffmpeg
-          ./configure --toolchain=msvc --arch=x86_64
           make -j1
 
       - name: Upload build artifacts

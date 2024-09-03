@@ -1,0 +1,40 @@
+name: Build FFmpeg
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build FFmpeg for MacOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Set up dependencies on macOS
+        run: |
+          brew update
+          brew install \
+            autoconf automake cmake fdk-aac git lame libass libtool \
+            libvorbis libvpx opus sdl2 texinfo wget x264 x265 xvid yasm
+
+      - name: Clone FFmpeg
+        run: git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
+
+      - name: Build FFmpeg on Linux and macOS
+        run: |
+          cd ffmpeg
+          ./configure
+          make -j1
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ffmpeg-${{ matrix.os }}
+          path: ffmpeg/ffmpeg
