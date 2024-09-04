@@ -13,9 +13,11 @@ runs:
       uses: actions/checkout@v3
 
     - name: Clone FFmpeg
+      shell: bash
       run: git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
 
     - name: Switch to FFmpeg version ${{ inputs.version }}
+      shell: bash
       run: |
         cd ffmpeg
         git checkout ${{ inputs.version }}
