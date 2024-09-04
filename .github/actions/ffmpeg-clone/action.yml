@@ -1,24 +1,21 @@
 name: FFmpeg Clone
 
-on:
-  workflow_call:
-    inputs:
-      version:
-        description: "FFmpeg version to checkout"
-        required: false
-        default: "n7.0"
+inputs:
+  version:
+    description: "FFmpeg version to checkout"
+    required: false
+    default: "n7.0"
 
-jobs:
-  clone_ffmpeg:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Clone FFmpeg
-        run: git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
+    - name: Clone FFmpeg
+      run: git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
 
-      - name: Switch to FFmpeg version ${{ inputs.version }}
-        run: |
-          cd ffmpeg
-          git checkout ${{ inputs.version }}
+    - name: Switch to FFmpeg version ${{ inputs.version }}
+      run: |
+        cd ffmpeg
+        git checkout ${{ inputs.version }}
