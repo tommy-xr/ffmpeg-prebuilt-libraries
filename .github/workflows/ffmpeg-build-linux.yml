@@ -26,8 +26,8 @@ jobs:
             libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
             meson ninja-build pkg-config texinfo wget yasm zlib1g-dev
 
-      - name: Clone FFmpeg
-        run: git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
+      - name: Clone FFMPEG
+        uses: ./.github/workflows/ffmpeg-clone.yml
 
       - name: Build FFmpeg
         run: |

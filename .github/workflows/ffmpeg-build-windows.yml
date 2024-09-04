@@ -29,8 +29,8 @@ jobs:
       - name: Check MingW cross-compiler
         run: x86_64-w64-mingw32-gcc --version
 
-      - name: Clone FFmpeg
-        run: git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
+      - name: Call reusable FFmpeg clone workflow
+        uses: ./.github/workflows/ffmpeg-clone.yml
 
       - name: Cross-compile FFmpeg for Windows (x86_64) using MinGW
         run: |
