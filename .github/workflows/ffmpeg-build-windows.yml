@@ -1,0 +1,46 @@
+name: Build FFmpeg
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build FFmpeg for Windows
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Set up dependencies on Ubuntu
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf automake build-essential cmake git-core libass-dev \
+            libfreetype6-dev libsdl2-dev libtool libva-dev libvdpau-dev \
+            libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
+            meson ninja-build pkg-config texinfo wget yasm zlib1g-dev mingw-w64
+
+      - name: Check MingW cross-compiler
+        run: x86_64-w64-mingw32-gcc --version
+
+      - name: Clone FFmpeg
+        run: git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
+
+      - name: Cross-compile FFmpeg for Windows (x86_64) using MinGW
+        run: |
+          cd ffmpeg
+          ./configure --target-os=mingw32 --arch=x86_64 --cross-prefix=x86_64-w64-mingw32- --enable-shared --enable-static --prefix=out
+          make -j1
+          make install
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ffmpeg-windows-x64
+          path: ffmpeg/out
