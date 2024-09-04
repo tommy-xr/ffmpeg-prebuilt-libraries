@@ -5,7 +5,7 @@ on:
     inputs:
       version:
         description: "FFmpeg version to checkout"
-        required: true
+        required: false
         default: "n7.0"
 
 jobs:
