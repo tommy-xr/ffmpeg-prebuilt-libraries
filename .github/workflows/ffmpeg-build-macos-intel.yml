@@ -1,0 +1,42 @@
+name: Build FFmpeg
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build FFmpeg for MacOS
+    # macos-13 runners are intel based
+    runs-on: macos-13
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Set up dependencies on macOS
+        run: |
+          brew update
+          brew install \
+            autoconf automake cmake fdk-aac git lame libass libtool \
+            libvorbis libvpx opus sdl2 texinfo wget x264 x265 xvid yasm
+
+      - name: Call reusable FFmpeg clone workflow
+        uses: ./.github/workflows/ffmpeg-clone.yml
+
+      - name: Build FFmpeg on MacOS (Intel, x86_64)
+        run: |
+          cd ffmpeg
+          ./configure --enable-shared --enable-static --arch=x86_64 --prefix=out-x86_64
+          make -j1
+          make install
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ffmpeg-macos-x86_64
+          path: ffmpeg/out-x86_64
