@@ -50,7 +50,7 @@ jobs:
           cd ffmpeg
           ./configure \
           --enable-shared \
-          --enable-static \
+          --enable-pic \
           --prefix=out \
           --target-os=android \
           --arch=aarch64 \
