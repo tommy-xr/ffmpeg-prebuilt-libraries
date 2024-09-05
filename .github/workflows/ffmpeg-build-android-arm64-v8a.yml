@@ -39,8 +39,12 @@ jobs:
       # Check Android SDK
       - name: Check Android SDK location
         run: echo $ANDROID_HOME
+      - name: Check ANDROID_NDK_HOME
+        run: echo $ANDROID_NDK_HOME
       - name: Check sdkmanager location
         run: which sdkmanager
+      - name: Check name of available tools
+        run: ls $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
       - name: Build FFmpeg
         run: |
           cd ffmpeg
