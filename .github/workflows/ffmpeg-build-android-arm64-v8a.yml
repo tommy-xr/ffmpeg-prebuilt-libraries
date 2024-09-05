@@ -69,7 +69,9 @@ jobs:
           --cxx=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang++ \
           --ld=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/ld \
           --strip=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip \
-          --nm=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm
+          --nm=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm \
+          --extra-cflags="-D__ANDROID_API=26" \
+          --extra-ldflags="-D__ANDROID_API=26"
           make -j1
           make install
 
