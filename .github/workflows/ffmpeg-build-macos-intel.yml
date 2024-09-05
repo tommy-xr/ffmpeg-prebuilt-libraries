@@ -1,4 +1,4 @@
-name: Build FFmpeg
+name: Build FFmpeg (MacOS, Intel)
 
 on:
   push:
@@ -25,8 +25,8 @@ jobs:
             autoconf automake cmake fdk-aac git lame libass libtool \
             libvorbis libvpx opus sdl2 texinfo wget x264 x265 xvid yasm
 
-      - name: Call reusable FFmpeg clone workflow
-        uses: ./.github/workflows/ffmpeg-clone.yml
+      - name: Clone ffmpeg
+        uses: ./.github/actions/ffmpeg-clone
 
       - name: Build FFmpeg on MacOS (Intel, x86_64)
         run: |

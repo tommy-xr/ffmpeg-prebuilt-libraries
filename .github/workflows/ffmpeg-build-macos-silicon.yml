@@ -1,4 +1,4 @@
-name: Build FFmpeg
+name: Build FFmpeg (MacOS, Silicon)
 
 on:
   push:
@@ -27,27 +27,12 @@ jobs:
       - name: Clone ffmpeg
         uses: ./.github/actions/ffmpeg-clone
 
-      # TODO
-      # - name: Build FFmpeg on MacOS (Intel, x86_64)
-      #   run: |
-      #     cd ffmpeg
-      #     ./configure --enable-shared --enable-static --arch=x86_64 --prefix=out-x86_64
-      #     make -j1
-      #     make install
-
       - name: Build FFmpeg on MacOS (Silicon, arm64)
         run: |
           cd ffmpeg
           ./configure --enable-shared --enable-static --arch=arm64 --prefix=out-arm64
           make -j1
           make install
-
-      # TODO
-      # - name: Upload build artifacts
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: ffmpeg-macos-x86_64
-      #     path: ffmpeg/out-x86_64
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
