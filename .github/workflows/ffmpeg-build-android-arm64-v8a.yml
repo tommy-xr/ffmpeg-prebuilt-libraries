@@ -51,6 +51,7 @@ jobs:
           ./configure \
           --enable-shared \
           --enable-pic \
+          --disable-programs \
           --prefix=out \
           --target-os=android \
           --arch=aarch64 \
