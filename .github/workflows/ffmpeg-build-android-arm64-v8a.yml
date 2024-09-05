@@ -66,6 +66,13 @@ jobs:
           make -j1
           make install
 
+      - name: Upload config log
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ffmpeg-ffbuild-config.log
+          path: ffmpeg/ffbuild/config.log
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
