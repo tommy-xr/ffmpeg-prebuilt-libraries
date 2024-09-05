@@ -59,7 +59,7 @@ jobs:
           --disable-inline-asm \
           --disable-network \
           --prefix=out \
-          --target-os=android \
+          --target-os=linux \
           --arch=arm64 \
           --cpu=armv8-a \
           --cross-prefix=aarch64-linux-android- \
@@ -70,20 +70,6 @@ jobs:
           --ld=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/ld \
           --strip=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip \
           --nm=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm \
-          --extra-cflags="-D__ANDROID_API=26"
-          sed -i 's/HAVE_LRINT 0/HAVE_LRINT 1/g' config.h
-          sed -i 's/HAVE_LRINTF 0/HAVE_LRINTF 1/g' config.h
-          sed -i 's/HAVE_ROUND 0/HAVE_ROUND 1/g' config.h
-          sed -i 's/HAVE_ROUNDF 0/HAVE_ROUNDF 1/g' config.h
-          sed -i 's/HAVE_TRUNC 0/HAVE_TRUNC 1/g' config.h
-          sed -i 's/HAVE_TRUNCF 0/HAVE_TRUNCF 1/g' config.h
-          sed -i 's/HAVE_CBRT 0/HAVE_CBRT 1/g' config.h
-          sed -i 's/HAVE_CBRTF 0/HAVE_CBRTF 1/g' config.h
-          sed -i 's/HAVE_COPYSIGN 0/HAVE_COPYSIGN 1/g' config.h
-          sed -i 's/HAVE_ERF 0/HAVE_ERF 1/g' config.h
-          sed -i 's/HAVE_HYPOT 0/HAVE_HYPOT 1/g' config.h
-          sed -i 's/HAVE_ISFINITE 0/HAVE_ISFINITE 1/g' config.h
-          sed -i 's/HAVE_RINT 0/HAVE_RINT 1/g' config.h
           make -j1
           make install
 
