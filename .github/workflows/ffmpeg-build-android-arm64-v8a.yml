@@ -52,6 +52,7 @@ jobs:
           --enable-shared \
           --enable-pic \
           --disable-programs \
+          --disable-hwaccels \
           --prefix=out \
           --target-os=android \
           --arch=aarch64 \
