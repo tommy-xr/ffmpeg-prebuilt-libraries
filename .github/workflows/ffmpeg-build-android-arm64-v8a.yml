@@ -45,17 +45,19 @@ jobs:
         run: which sdkmanager
       - name: Check name of available tools
         run: ls $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
+      - name: Are any LDFLAGS set?
+        run: echo $LDFLAGS
       - name: Build FFmpeg
         run: |
           cd ffmpeg
           ./configure \
           --enable-shared \
           --enable-pic \
+          --disable-debug \
           --disable-programs \
           --disable-hwaccels \
           --disable-inline-asm \
           --disable-network \
-          --disable-pthreads \
           --prefix=out \
           --target-os=android \
           --arch=aarch64 \
