@@ -78,6 +78,11 @@ jobs:
           sed -i 's/HAVE_TRUNC 0/HAVE_TRUNC 1/g' config.h
           sed -i 's/HAVE_TRUNCF 0/HAVE_TRUNCF 1/g' config.h
           sed -i 's/HAVE_CBRT 0/HAVE_CBRT 1/g' config.h
+          sed -i 's/HAVE_CBRTF 0/HAVE_CBRTF 1/g' config.h
+          sed -i 's/HAVE_COPYSIGN 0/HAVE_COPYSIGN 1/g' config.h
+          sed -i 's/HAVE_ERF 0/HAVE_ERF 1/g' config.h
+          sed -i 's/HAVE_HYPOT 0/HAVE_HYPOT 1/g' config.h
+          sed -i 's/HAVE_ISFINITE 0/HAVE_ISFINITE 1/g' config.h
           sed -i 's/HAVE_RINT 0/HAVE_RINT 1/g' config.h
           make -j1
           make install
