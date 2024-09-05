@@ -71,6 +71,14 @@ jobs:
           --strip=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip \
           --nm=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm \
           --extra-cflags="-D__ANDROID_API=26"
+          sed -i '' 's/HAVE_LRINT 0/HAVE_LRINT 1/g' config.h
+          sed -i '' 's/HAVE_LRINTF 0/HAVE_LRINTF 1/g' config.h
+          sed -i '' 's/HAVE_ROUND 0/HAVE_ROUND 1/g' config.h
+          sed -i '' 's/HAVE_ROUNDF 0/HAVE_ROUNDF 1/g' config.h
+          sed -i '' 's/HAVE_TRUNC 0/HAVE_TRUNC 1/g' config.h
+          sed -i '' 's/HAVE_TRUNCF 0/HAVE_TRUNCF 1/g' config.h
+          sed -i '' 's/HAVE_CBRT 0/HAVE_CBRT 1/g' config.h
+          sed -i '' 's/HAVE_RINT 0/HAVE_RINT 1/g' config.h
           make -j1
           make install
 
