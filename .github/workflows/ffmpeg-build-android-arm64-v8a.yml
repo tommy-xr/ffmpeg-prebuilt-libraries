@@ -60,7 +60,7 @@ jobs:
           --disable-network \
           --prefix=out \
           --target-os=android \
-          --arch=aarch64 \
+          --arch=arm64 \
           --cpu=armv8-a \
           --cross-prefix=aarch64-linux-android- \
           --enable-cross-compile \
