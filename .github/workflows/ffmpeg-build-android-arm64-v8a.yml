@@ -49,6 +49,7 @@ jobs:
           --enable-static \
           --prefix=out \
           --target-os=android \
+          --arch=aarch64 \
           --cpu=armv8-a \
           --cross-prefix=aarch64-linux-android- \
           --enable-cross-compile \
