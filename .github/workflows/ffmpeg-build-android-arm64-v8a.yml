@@ -45,6 +45,8 @@ jobs:
         run: which sdkmanager
       - name: Check name of available tools
         run: ls $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
+      - name: Check include path
+        run: ls $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include
       - name: Are any LDFLAGS set?
         run: echo $LDFLAGS
       - name: Build FFmpeg
@@ -64,6 +66,7 @@ jobs:
           --cpu=armv8-a \
           --cross-prefix=aarch64-linux-android- \
           --enable-cross-compile \
+          --extra-cflags="-I$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include" \
           --sysroot=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot \
           --cc=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang \
           --cxx=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang++ \
