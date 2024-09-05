@@ -24,8 +24,8 @@ jobs:
             autoconf automake cmake fdk-aac git lame libass libtool \
             libvorbis libvpx opus sdl2 texinfo wget x264 x265 xvid yasm
 
-      - name: Clone FFmpeg
-        run: git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
+      - name: Clone ffmpeg
+        uses: ./.github/actions/ffmpeg-clone
 
       # TODO
       # - name: Build FFmpeg on MacOS (Intel, x86_64)
