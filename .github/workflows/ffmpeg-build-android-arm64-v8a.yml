@@ -1,4 +1,4 @@
-name: Build FFmpeg
+name: Build FFmpeg (Android, arm64)
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
             meson ninja-build pkg-config texinfo wget yasm zlib1g-dev
 
       - name: Clone ffmpeg
-        uses: ./.github/workflows/ffmpeg-clone.yml
+        uses: ./.github/actions/ffmpeg-clone
 
       # Set up Android SDK
       - uses: android-actions/setup-android@v2
