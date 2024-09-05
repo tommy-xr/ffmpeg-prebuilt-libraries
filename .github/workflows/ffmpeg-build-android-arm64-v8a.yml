@@ -53,6 +53,9 @@ jobs:
           --enable-pic \
           --disable-programs \
           --disable-hwaccels \
+          --disable-inline-asm \
+          --disable-network \
+          --disable-pthreads \
           --prefix=out \
           --target-os=android \
           --arch=aarch64 \
