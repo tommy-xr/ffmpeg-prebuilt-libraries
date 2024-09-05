@@ -44,7 +44,7 @@ jobs:
       - name: Build FFmpeg
         run: |
           cd ffmpeg
-          ./configure \ 
+          ./configure \
           --enable-shared \
           --enable-static \
           --prefix=out \
