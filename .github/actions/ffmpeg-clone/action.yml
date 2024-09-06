@@ -21,3 +21,9 @@ runs:
       run: |
         cd ffmpeg
         git checkout ${{ inputs.version }}
+
+    - name: Apply patches
+      shell: bash
+      run: |
+        cd ffmpeg
+        git apply ../patches/android-configure-soname.patch
