@@ -73,6 +73,7 @@ jobs:
           --ld=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/ld \
           --ar=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar \
           --nm=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm \
+          --ranlib=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib \
           --strip=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
           sed  -i "s/#define HAVE_TRUNC 0/#define HAVE_TRUNC 1/" config.h
           sed  -i "s/#define HAVE_TRUNCF 0/#define HAVE_TRUNCF 1/" config.h
