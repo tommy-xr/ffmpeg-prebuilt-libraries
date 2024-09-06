@@ -61,7 +61,7 @@ jobs:
           --disable-inline-asm \
           --disable-network \
           --prefix=out \
-          --target-os=linux \
+          --target-os=android \
           --arch=arm64 \
           --cpu=armv8-a \
           --cross-prefix=aarch64-linux-android- \
