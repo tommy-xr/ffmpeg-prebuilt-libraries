@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: Build FFmpeg for Linux
+    name: Build FFmpeg for Android
     runs-on: ubuntu-latest
 
     steps:
