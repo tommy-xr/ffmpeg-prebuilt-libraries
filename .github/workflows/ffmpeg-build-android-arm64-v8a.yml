@@ -60,6 +60,7 @@ jobs:
           --disable-hwaccels \
           --disable-inline-asm \
           --disable-network \
+          --disable-static \
           --prefix=out \
           --target-os=android \
           --arch=arm64 \
