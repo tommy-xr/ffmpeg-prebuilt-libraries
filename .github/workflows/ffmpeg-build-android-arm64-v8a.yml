@@ -55,6 +55,7 @@ jobs:
           cd ffmpeg
           ./configure \
           --enable-shared \
+          --disable-asm \
           --disable-debug \
           --disable-programs \
           --disable-hwaccels \
