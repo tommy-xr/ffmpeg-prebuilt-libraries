@@ -71,8 +71,9 @@ jobs:
           --cc=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang \
           --cxx=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang++ \
           --ld=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/ld \
-          --strip=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip \
+          --ar=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar \
           --nm=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm
+          --strip=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip \
           sed  -i "s/#define HAVE_TRUNC 0/#define HAVE_TRUNC 1/" config.h
           sed  -i "s/#define HAVE_TRUNCF 0/#define HAVE_TRUNCF 1/" config.h
           sed  -i "s/#define HAVE_RINT 0/#define HAVE_RINT 1/" config.h
