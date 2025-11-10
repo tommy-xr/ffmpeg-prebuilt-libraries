@@ -59,13 +59,6 @@ jobs:
       ffmpeg_version: ${{ env.FFMPEG_VERSION }}
     secrets: inherit
 
-  build-macos-intel:
-    name: Build macOS (Intel)
-    uses: ./.github/workflows/ffmpeg-build-macos-intel.yml
-    with:
-      ffmpeg_version: ${{ env.FFMPEG_VERSION }}
-    secrets: inherit
-
   build-macos-silicon:
     name: Build macOS (Apple Silicon)
     uses: ./.github/workflows/ffmpeg-build-macos-silicon.yml
@@ -80,7 +73,6 @@ jobs:
       - build-linux
       - build-android
       - build-windows
-      - build-macos-intel
       - build-macos-silicon
     steps:
       - name: Download artifacts
@@ -96,7 +88,6 @@ jobs:
             "dist/ffmpeg-android-arm64-v8a/ffmpeg-android-arm64-v8a.tar.gz"
             "dist/ffmpeg-linux-x64/ffmpeg-linux-x64.tar.gz"
             "dist/ffmpeg-windows-x64/ffmpeg-windows-x64.tar.gz"
-            "dist/ffmpeg-macos-x86_64/ffmpeg-macos-x86_64.tar.gz"
             "dist/ffmpeg-macos-arm64/ffmpeg-macos-arm64.tar.gz"
           )
           missing=0
@@ -168,5 +159,4 @@ jobs:
             dist/ffmpeg-android-arm64-v8a/ffmpeg-android-arm64-v8a.tar.gz
             dist/ffmpeg-linux-x64/ffmpeg-linux-x64.tar.gz
             dist/ffmpeg-windows-x64/ffmpeg-windows-x64.tar.gz
-            dist/ffmpeg-macos-x86_64/ffmpeg-macos-x86_64.tar.gz
             dist/ffmpeg-macos-arm64/ffmpeg-macos-arm64.tar.gz
