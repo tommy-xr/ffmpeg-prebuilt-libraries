@@ -46,7 +46,7 @@ jobs:
       - name: Build FFmpeg
         run: |
           cd ffmpeg
-          ./configure --enable-shared --enable-static --prefix=out
+          ./configure --enable-shared --enable-static --disable-doc --prefix=out
           make -j1
           make install
 

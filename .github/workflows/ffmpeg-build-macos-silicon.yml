@@ -44,7 +44,7 @@ jobs:
       - name: Build FFmpeg on MacOS (Silicon, arm64)
         run: |
           cd ffmpeg
-          ./configure --enable-shared --enable-static --arch=arm64 --prefix=out-arm64
+          ./configure --enable-shared --enable-static --disable-doc --arch=arm64 --prefix=out-arm64
           make -j1
           make install
 

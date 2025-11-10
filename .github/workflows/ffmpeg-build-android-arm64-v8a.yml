@@ -68,11 +68,12 @@ jobs:
         run: |
           cd ffmpeg
           ./configure \
-          --enable-shared \
-          --disable-asm \
-          --disable-debug \
-          --disable-programs \
-          --disable-hwaccels \
+            --enable-shared \
+            --disable-asm \
+            --disable-debug \
+            --disable-programs \
+            --disable-doc \
+            --disable-hwaccels \
           --disable-inline-asm \
           --disable-network \
           --disable-static \
