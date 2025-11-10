@@ -7,6 +7,18 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      ffmpeg_version:
+        description: "FFmpeg upstream tag to build"
+        required: false
+        default: "n7.0"
+  workflow_call:
+    inputs:
+      ffmpeg_version:
+        required: false
+        type: string
+        default: "n7.0"
 
 jobs:
   build:
@@ -31,16 +43,22 @@ jobs:
 
       - name: Clone ffmpeg
         uses: ./.github/actions/ffmpeg-clone
+        with:
+          version: ${{ github.event_name == 'workflow_call' && inputs.ffmpeg_version || github.event_name == 'workflow_dispatch' && github.event.inputs.ffmpeg_version || 'n7.0' }}
 
       - name: Cross-compile FFmpeg for Windows (x86_64) using MinGW
         run: |
           cd ffmpeg
-          ./configure --target-os=mingw32 --arch=x86_64 --cross-prefix=x86_64-w64-mingw32- --enable-shared --enable-static --prefix=out
+          ./configure --target-os=mingw32 --arch=x86_64 --cross-prefix=x86_64-w64-mingw32- --enable-shared --enable-static --disable-doc --prefix=out
           make -j1
           make install
 
+      - name: Package artifact
+        run: |
+          tar -czf ffmpeg-windows-x64.tar.gz -C ffmpeg/out .
+
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ffmpeg-windows-x64
-          path: ffmpeg/out
+          path: ffmpeg-windows-x64.tar.gz
