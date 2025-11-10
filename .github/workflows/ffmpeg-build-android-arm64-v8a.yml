@@ -7,6 +7,18 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      ffmpeg_version:
+        description: "FFmpeg upstream tag to build"
+        required: false
+        default: "n7.0"
+  workflow_call:
+    inputs:
+      ffmpeg_version:
+        required: false
+        type: string
+        default: "n7.0"
 
 jobs:
   build:
@@ -28,6 +40,8 @@ jobs:
 
       - name: Clone ffmpeg
         uses: ./.github/actions/ffmpeg-clone
+        with:
+          version: ${{ github.event_name == 'workflow_call' && inputs.ffmpeg_version || github.event_name == 'workflow_dispatch' && github.event.inputs.ffmpeg_version || 'n7.0' }}
 
       # Set up Android SDK
       - uses: android-actions/setup-android@v2
@@ -98,20 +112,24 @@ jobs:
 
       - name: Upload config.h
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ffmpeg-config.h
           path: ffmpeg/config.h
 
       - name: Upload config log
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ffmpeg-ffbuild-config.log
           path: ffmpeg/ffbuild/config.log
 
+      - name: Package artifact
+        run: |
+          tar -czf ffmpeg-android-arm64-v8a.tar.gz -C ffmpeg/out .
+
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ffmpeg-android-arm64-v8a
-          path: ffmpeg/out
+          path: ffmpeg-android-arm64-v8a.tar.gz
