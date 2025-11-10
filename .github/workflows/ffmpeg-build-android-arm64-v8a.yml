@@ -13,17 +13,27 @@ on:
         description: "FFmpeg upstream tag to build"
         required: false
         default: "n7.0"
+      android_api_level:
+        description: "Android API level to target (e.g., 23, 26)"
+        required: false
+        default: "26"
   workflow_call:
     inputs:
       ffmpeg_version:
         required: false
         type: string
         default: "n7.0"
+      android_api_level:
+        required: false
+        type: string
+        default: "26"
 
 jobs:
   build:
     name: Build FFmpeg for Android
     runs-on: ubuntu-latest
+    env:
+      ANDROID_API_LEVEL: ${{ github.event_name == 'workflow_call' && inputs.android_api_level || github.event_name == 'workflow_dispatch' && github.event.inputs.android_api_level || '26' }}
 
     steps:
       - name: Checkout the repository
@@ -46,7 +56,7 @@ jobs:
       # Set up Android SDK
       - uses: android-actions/setup-android@v2
       - run: sdkmanager "build-tools;33.0.0"
-      - run: sdkmanager "platforms;android-26"
+      - run: sdkmanager "platforms;android-${ANDROID_API_LEVEL}"
       - run: sdkmanager "platform-tools"
       - run: sdkmanager "ndk;24.0.8215888"
 
@@ -85,9 +95,9 @@ jobs:
             --enable-cross-compile \
             --extra-cflags="-fPIC -I$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include" \
             --sysroot=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot \
-            --cc="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang -fPIC" \
-            --cxx="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang++ -fPIC" \
-            --ld="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang" \
+            --cc="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang -fPIC" \
+            --cxx="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang++ -fPIC" \
+            --ld="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang" \
             --ar=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar \
             --nm=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm \
             --ranlib=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib \

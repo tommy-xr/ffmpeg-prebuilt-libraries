@@ -30,12 +30,18 @@ on:
         required: false
         default: false
         type: boolean
+      android_api_level:
+        description: "Android API level for cross-compile (e.g., 23, 26)"
+        required: false
+        default: "26"
+        type: string
 
 env:
   FFMPEG_VERSION: ${{ inputs.ffmpeg_version }}
   RELEASE_TAG: ${{ inputs.release_tag }}
   RELEASE_NAME: ${{ inputs.release_name != '' && inputs.release_name || inputs.release_tag }}
   RELEASE_BODY: ${{ inputs.release_body != '' && inputs.release_body || format('Automated FFmpeg build for {0}', inputs.release_tag) }}
+  ANDROID_API_LEVEL: ${{ inputs.android_api_level }}
 
 jobs:
   build-linux:
@@ -50,6 +56,7 @@ jobs:
     uses: ./.github/workflows/ffmpeg-build-android-arm64-v8a.yml
     with:
       ffmpeg_version: ${{ env.FFMPEG_VERSION }}
+      android_api_level: ${{ env.ANDROID_API_LEVEL }}
     secrets: inherit
 
   build-windows:
