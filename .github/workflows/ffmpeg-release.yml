@@ -1,0 +1,371 @@
+name: Release FFmpeg binaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Tag to create/update (example: v0.6.0)"
+        required: true
+        type: string
+      release_name:
+        description: "Human friendly release name (defaults to tag)"
+        required: false
+        type: string
+      release_body:
+        description: "Release notes (optional)"
+        required: false
+        type: string
+      ffmpeg_version:
+        description: "FFmpeg upstream tag to build"
+        required: false
+        default: "n7.0"
+        type: string
+      draft:
+        description: "Publish as draft"
+        required: false
+        default: false
+        type: boolean
+      prerelease:
+        description: "Mark release as prerelease"
+        required: false
+        default: false
+        type: boolean
+
+env:
+  FFMPEG_VERSION: ${{ inputs.ffmpeg_version }}
+  RELEASE_TAG: ${{ inputs.release_tag }}
+  RELEASE_NAME: ${{ inputs.release_name != '' && inputs.release_name || inputs.release_tag }}
+  RELEASE_BODY: ${{ inputs.release_body != '' && inputs.release_body || format('Automated FFmpeg build for {0}', inputs.release_tag) }}
+
+jobs:
+  build-linux:
+    name: Build Linux (x64)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf automake build-essential cmake git-core libass-dev \
+            libfreetype6-dev libsdl2-dev libtool libva-dev libvdpau-dev \
+            libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
+            meson ninja-build pkg-config texinfo wget yasm zlib1g-dev
+
+      - name: Clone FFmpeg
+        uses: ./.github/actions/ffmpeg-clone
+        with:
+          version: ${{ env.FFMPEG_VERSION }}
+
+      - name: Configure and build
+        run: |
+          cd ffmpeg
+          ./configure --enable-shared --enable-static --prefix=out
+          make -j1
+          make install
+
+      - name: Package artifact
+        run: |
+          tar -czf ffmpeg-linux-x64.tar.gz -C ffmpeg/out .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ffmpeg-linux-x64
+          path: ffmpeg-linux-x64.tar.gz
+
+  build-android:
+    name: Build Android (arm64-v8a)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf automake build-essential cmake git-core libass-dev \
+            libfreetype6-dev libsdl2-dev libtool libva-dev libvdpau-dev \
+            libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
+            meson ninja-build pkg-config texinfo wget yasm zlib1g-dev
+
+      - name: Clone FFmpeg
+        uses: ./.github/actions/ffmpeg-clone
+        with:
+          version: ${{ env.FFMPEG_VERSION }}
+
+      - uses: android-actions/setup-android@v2
+      - run: sdkmanager "build-tools;33.0.0"
+      - run: sdkmanager "platforms;android-26"
+      - run: sdkmanager "platform-tools"
+      - run: sdkmanager "ndk;24.0.8215888"
+
+      - name: Build FFmpeg
+        run: |
+          cd ffmpeg
+          ./configure \
+            --enable-shared \
+            --disable-asm \
+            --disable-debug \
+            --disable-programs \
+            --disable-hwaccels \
+            --disable-inline-asm \
+            --disable-network \
+            --disable-static \
+            --prefix=out \
+            --target-os=android \
+            --arch=arm64 \
+            --cpu=armv8-a \
+            --cross-prefix=aarch64-linux-android- \
+            --enable-cross-compile \
+            --extra-cflags="-fPIC -I$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include" \
+            --sysroot=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot \
+            --cc="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang -fPIC" \
+            --cxx="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang++ -fPIC" \
+            --ld=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/ld \
+            --ar=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar \
+            --nm=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm \
+            --ranlib=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib \
+            --strip=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
+          sed -i "s/#define HAVE_TRUNC 0/#define HAVE_TRUNC 1/" config.h
+          sed -i "s/#define HAVE_TRUNCF 0/#define HAVE_TRUNCF 1/" config.h
+          sed -i "s/#define HAVE_RINT 0/#define HAVE_RINT 1/" config.h
+          sed -i "s/#define HAVE_LRINT 0/#define HAVE_LRINT 1/" config.h
+          sed -i "s/#define HAVE_LRINTF 0/#define HAVE_LRINTF 1/" config.h
+          sed -i "s/#define HAVE_ROUND 0/#define HAVE_ROUND 1/" config.h
+          sed -i "s/#define HAVE_ROUNDF 0/#define HAVE_ROUNDF 1/" config.h
+          sed -i "s/#define HAVE_CBRT 0/#define HAVE_CBRT 1/" config.h
+          sed -i "s/#define HAVE_CBRTF 0/#define HAVE_CBRTF 1/" config.h
+          sed -i "s/#define HAVE_COPYSIGN 0/#define HAVE_COPYSIGN 1/" config.h
+          sed -i "s/#define HAVE_ERF 0/#define HAVE_ERF 1/" config.h
+          sed -i "s/#define HAVE_HYPOT 0/#define HAVE_HYPOT 1/" config.h
+          sed -i "s/#define HAVE_ISNAN 0/#define HAVE_ISNAN 1/" config.h
+          sed -i "s/#define HAVE_ISFINITE 0/#define HAVE_ISFINITE 1/" config.h
+          sed -i "s/#define HAVE_INET_ATON 0/#define HAVE_INET_ATON 1/" config.h
+          sed -i "s/#define getenv(x) NULL/\\/\\/ #define getenv(x) NULL/" config.h
+          make -j1
+          make install
+
+      - name: Package artifact
+        run: |
+          tar -czf ffmpeg-android-arm64-v8a.tar.gz -C ffmpeg/out .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ffmpeg-android-arm64-v8a
+          path: ffmpeg-android-arm64-v8a.tar.gz
+
+  build-windows:
+    name: Build Windows (x64)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf automake build-essential cmake git-core libass-dev \
+            libfreetype6-dev libsdl2-dev libtool libva-dev libvdpau-dev \
+            libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
+            meson ninja-build pkg-config texinfo wget yasm zlib1g-dev mingw-w64
+
+      - name: Check MingW cross-compiler
+        run: x86_64-w64-mingw32-gcc --version
+
+      - name: Clone FFmpeg
+        uses: ./.github/actions/ffmpeg-clone
+        with:
+          version: ${{ env.FFMPEG_VERSION }}
+
+      - name: Configure and build
+        run: |
+          cd ffmpeg
+          ./configure --target-os=mingw32 --arch=x86_64 --cross-prefix=x86_64-w64-mingw32- --enable-shared --enable-static --prefix=out
+          make -j1
+          make install
+
+      - name: Package artifact
+        run: |
+          tar -czf ffmpeg-windows-x64.tar.gz -C ffmpeg/out .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ffmpeg-windows-x64
+          path: ffmpeg-windows-x64.tar.gz
+
+  build-macos-intel:
+    name: Build macOS (Intel)
+    runs-on: macos-13
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install \
+            autoconf automake cmake fdk-aac git lame libass libtool \
+            libvorbis libvpx opus sdl2 texinfo wget x264 x265 xvid yasm
+
+      - name: Clone FFmpeg
+        uses: ./.github/actions/ffmpeg-clone
+        with:
+          version: ${{ env.FFMPEG_VERSION }}
+
+      - name: Configure and build
+        run: |
+          cd ffmpeg
+          ./configure --enable-shared --enable-static --arch=x86_64 --prefix=out-x86_64
+          make -j1
+          make install
+
+      - name: Package artifact
+        run: |
+          tar -czf ffmpeg-macos-x86_64.tar.gz -C ffmpeg/out-x86_64 .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ffmpeg-macos-x86_64
+          path: ffmpeg-macos-x86_64.tar.gz
+
+  build-macos-silicon:
+    name: Build macOS (Apple Silicon)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install \
+            autoconf automake cmake fdk-aac git lame libass libtool \
+            libvorbis libvpx opus sdl2 texinfo wget x264 x265 xvid yasm
+
+      - name: Clone FFmpeg
+        uses: ./.github/actions/ffmpeg-clone
+        with:
+          version: ${{ env.FFMPEG_VERSION }}
+
+      - name: Configure and build
+        run: |
+          cd ffmpeg
+          ./configure --enable-shared --enable-static --arch=arm64 --prefix=out-arm64
+          make -j1
+          make install
+
+      - name: Package artifact
+        run: |
+          tar -czf ffmpeg-macos-arm64.tar.gz -C ffmpeg/out-arm64 .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ffmpeg-macos-arm64
+          path: ffmpeg-macos-arm64.tar.gz
+
+  publish-release:
+    name: Publish release
+    runs-on: ubuntu-latest
+    needs:
+      - build-linux
+      - build-android
+      - build-windows
+      - build-macos-intel
+      - build-macos-silicon
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: dist
+
+      - name: Prepare asset list
+        id: assets
+        run: |
+          ls -R dist
+          assets=(
+            "dist/ffmpeg-android-arm64-v8a/ffmpeg-android-arm64-v8a.tar.gz"
+            "dist/ffmpeg-linux-x64/ffmpeg-linux-x64.tar.gz"
+            "dist/ffmpeg-windows-x64/ffmpeg-windows-x64.tar.gz"
+            "dist/ffmpeg-macos-x86_64/ffmpeg-macos-x86_64.tar.gz"
+            "dist/ffmpeg-macos-arm64/ffmpeg-macos-arm64.tar.gz"
+          )
+          missing=0
+          for asset in "${assets[@]}"; do
+            if [ ! -f "$asset" ]; then
+              echo "Missing asset: $asset"
+              missing=1
+            fi
+          done
+          if [ $missing -ne 0 ]; then
+            exit 1
+          fi
+          {
+            echo "list<<EOF"
+            for asset in "${assets[@]}"; do
+              echo "$asset"
+            done
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Delete existing assets (if rerun)
+        uses: actions/github-script@v6
+        env:
+          RELEASE_TAG: ${{ env.RELEASE_TAG }}
+          ASSET_PATHS: ${{ steps.assets.outputs.list }}
+        with:
+          script: |
+            const assets = (process.env.ASSET_PATHS || '').split('\n').filter(Boolean);
+            if (!assets.length) {
+              core.info('No assets recorded, skipping delete step.');
+              return;
+            }
+            const { owner, repo } = context.repo;
+            let release;
+            try {
+              release = await github.rest.repos.getReleaseByTag({
+                owner,
+                repo,
+                tag: process.env.RELEASE_TAG,
+              });
+            } catch (error) {
+              if (error.status === 404) {
+                core.info(`No existing release for ${process.env.RELEASE_TAG}, skipping delete.`);
+                return;
+              }
+              throw error;
+            }
+            const targets = assets.map(asset => asset.split('/').pop());
+            for (const asset of release.data.assets) {
+              if (targets.includes(asset.name)) {
+                core.info(`Deleting existing asset ${asset.name}`);
+                await github.rest.repos.deleteReleaseAsset({
+                  owner,
+                  repo,
+                  asset_id: asset.id,
+                });
+              }
+            }
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: ${{ env.RELEASE_NAME }}
+          body: ${{ env.RELEASE_BODY }}
+          draft: ${{ inputs.draft }}
+          prerelease: ${{ inputs.prerelease }}
+          files: |
+            dist/ffmpeg-android-arm64-v8a/ffmpeg-android-arm64-v8a.tar.gz
+            dist/ffmpeg-linux-x64/ffmpeg-linux-x64.tar.gz
+            dist/ffmpeg-windows-x64/ffmpeg-windows-x64.tar.gz
+            dist/ffmpeg-macos-x86_64/ffmpeg-macos-x86_64.tar.gz
+            dist/ffmpeg-macos-arm64/ffmpeg-macos-arm64.tar.gz
