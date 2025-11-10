@@ -80,34 +80,34 @@ jobs:
           LD_WRAPPER="$(pwd)/android-ld-wrapper.sh"
           CLANG_BIN="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang"
           cat <<'EOF' > "$LD_WRAPPER"
-#!/usr/bin/env bash
-set -euo pipefail
-CLANG_BIN="{{CLANG_BIN}}"
-args=()
-while (($#)); do
-  case "$1" in
-    -soname)
-      if [ $# -lt 2 ]; then
-        echo "ld-wrapper: -soname missing argument" >&2
-        exit 1
-      fi
-      args+=("-Wl,-soname,$2")
-      shift 2
-      continue
-      ;;
-    -soname=*)
-      args+=("-Wl,-soname,${1#-soname=}")
-      shift
-      continue
-      ;;
-    *)
-      args+=("$1")
-      shift
-      ;;
-  esac
-done
-exec "$CLANG_BIN" "${args[@]}"
-EOF
+          #!/usr/bin/env bash
+          set -euo pipefail
+          CLANG_BIN="{{CLANG_BIN}}"
+          args=()
+          while (($#)); do
+            case "$1" in
+              -soname)
+                if [ $# -lt 2 ]; then
+                  echo "ld-wrapper: -soname missing argument" >&2
+                  exit 1
+                fi
+                args+=("-Wl,-soname,$2")
+                shift 2
+                continue
+                ;;
+              -soname=*)
+                args+=("-Wl,-soname,${1#-soname=}")
+                shift
+                continue
+                ;;
+              *)
+                args+=("$1")
+                shift
+                ;;
+            esac
+          done
+          exec "$CLANG_BIN" "${args[@]}"
+          EOF
           sed -i.bak "s|{{CLANG_BIN}}|$CLANG_BIN|g" "$LD_WRAPPER"
           rm "$LD_WRAPPER.bak"
           chmod +x "$LD_WRAPPER"
