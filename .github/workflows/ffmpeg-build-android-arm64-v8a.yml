@@ -77,7 +77,40 @@ jobs:
       - name: Build FFmpeg
         run: |
           cd ffmpeg
-          BUILTINS_LIB=$($ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang --print-file-name=libclang_rt.builtins-aarch64-android.a)
+          LD_WRAPPER="$(pwd)/android-ld-wrapper.sh"
+          CLANG_BIN="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang"
+          cat <<'EOF' > "$LD_WRAPPER"
+#!/usr/bin/env bash
+set -euo pipefail
+CLANG_BIN="{{CLANG_BIN}}"
+args=()
+while (($#)); do
+  case "$1" in
+    -soname)
+      if [ $# -lt 2 ]; then
+        echo "ld-wrapper: -soname missing argument" >&2
+        exit 1
+      fi
+      args+=("-Wl,-soname,$2")
+      shift 2
+      continue
+      ;;
+    -soname=*)
+      args+=("-Wl,-soname,${1#-soname=}")
+      shift
+      continue
+      ;;
+    *)
+      args+=("$1")
+      shift
+      ;;
+  esac
+done
+exec "$CLANG_BIN" "${args[@]}"
+EOF
+          sed -i.bak "s|{{CLANG_BIN}}|$CLANG_BIN|g" "$LD_WRAPPER"
+          rm "$LD_WRAPPER.bak"
+          chmod +x "$LD_WRAPPER"
           ./configure \
             --enable-shared \
             --disable-asm \
@@ -98,12 +131,11 @@ jobs:
             --sysroot=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot \
             --cc="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang -fPIC" \
             --cxx="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang++ -fPIC" \
-            --ld="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/ld.lld" \
+            --ld="$LD_WRAPPER" \
             --ar=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar \
             --nm=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm \
             --ranlib=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib \
-            --strip=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip \
-            --extra-libs="$BUILTINS_LIB"
+            --strip=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
           sed  -i "s/#define HAVE_TRUNC 0/#define HAVE_TRUNC 1/" config.h
           sed  -i "s/#define HAVE_TRUNCF 0/#define HAVE_TRUNCF 1/" config.h
           sed  -i "s/#define HAVE_RINT 0/#define HAVE_RINT 1/" config.h
