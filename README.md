@@ -8,6 +8,7 @@
    - `release_tag`: git tag that should back the release (for example `v0.6.0`).
    - `release_name` / `release_body`: optional metadata shown on the GitHub release page.
    - `ffmpeg_version`: upstream FFmpeg tag to build (defaults to `n7.0`).
+   - `android_api_level`: API level to target for the Android cross-build (defaults to `26`, set to `23` if you need Quest binaries that match the current `set_up_android_sdk.sh` tooling).
    - `draft` / `prerelease`: toggle release visibility.
 4. Wait for all build jobs (Linux, macOS Apple Silicon, Android arm64-v8a, Windows x64) to finish. Each job packages the content that lands in `ffmpeg/out*` into a `<platform>.tar.gz`.
 5. The `Publish release` job creates/updates the GitHub release for the provided tag and attaches all generated archives so the binaries live with the release itself.

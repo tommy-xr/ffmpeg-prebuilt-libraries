@@ -77,6 +77,7 @@ jobs:
       - name: Build FFmpeg
         run: |
           cd ffmpeg
+          BUILTINS_LIB=$($ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang --print-file-name=libclang_rt.builtins-aarch64-android.a)
           ./configure \
             --enable-shared \
             --disable-asm \
@@ -97,11 +98,12 @@ jobs:
             --sysroot=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot \
             --cc="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang -fPIC" \
             --cxx="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang++ -fPIC" \
-            --ld="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang" \
+            --ld="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/ld.lld" \
             --ar=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar \
             --nm=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm \
             --ranlib=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib \
-            --strip=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
+            --strip=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip \
+            --extra-libs="$BUILTINS_LIB"
           sed  -i "s/#define HAVE_TRUNC 0/#define HAVE_TRUNC 1/" config.h
           sed  -i "s/#define HAVE_TRUNCF 0/#define HAVE_TRUNCF 1/" config.h
           sed  -i "s/#define HAVE_RINT 0/#define HAVE_RINT 1/" config.h
